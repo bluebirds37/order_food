@@ -1,0 +1,12 @@
+.page { padding: 24rpx; }
+.empty-card, .order-card { padding: 24rpx; margin-bottom: 18rpx; }
+.row { display: flex; justify-content: space-between; margin-bottom: 10rpx; color: #5c493c; font-size: 24rpx; }
+.top-row { align-items: center; }
+.order-no { font-size: 30rpx; font-weight: 700; color: #2a1c12; }
+.status { color: #9f4d2a; }
+.item-list { margin-top: 12rpx; padding-top: 12rpx; border-top: 1rpx solid #f0dfd0; }
+.item-row { display: flex; justify-content: space-between; margin-bottom: 8rpx; font-size: 24rpx; }
+.button-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12rpx; margin-top: 16rpx; }
+.light-button, .warn-button { margin: 0; border-radius: 999rpx; font-size: 22rpx; padding: 0; }
+.light-button { background: #fff0e6; color: #9f4d2a; }
+.warn-button { background: #ffe6e0; color: #b43c22; }

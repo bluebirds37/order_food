@@ -1,0 +1,67 @@
+<view class="page">
+  <view class="hero card">
+    <view>
+      <view class="title">{{dashboard.storeName}}</view>
+      <view class="sub-title">{{dashboard.open ? '营业中，门店可正常接单' : '已打烊，可先调整营业状态'}}</view>
+      <view class="notice">{{dashboard.notice}}</view>
+    </view>
+    <button class="logout-button" bindtap="logout">退出</button>
+  </view>
+
+  <view class="stat-grid">
+    <view class="card stat-card">
+      <text class="stat-label">今日订单</text>
+      <text class="stat-value">{{dashboard.todayOrderCount}}</text>
+    </view>
+    <view class="card stat-card accent">
+      <text class="stat-label stat-label-light">今日营收</text>
+      <text class="stat-value">¥{{dashboard.todayRevenue}}</text>
+    </view>
+    <view class="card stat-card">
+      <text class="stat-label">在售菜品</text>
+      <text class="stat-value">{{dashboard.availableMenuCount}}</text>
+    </view>
+  </view>
+
+  <view class="card nav-card">
+    <view class="section-title">管理入口</view>
+    <view class="nav-list">
+      <view class="nav-item" data-url="/pages/admin-status/index" bindtap="navigateToPage">
+        <view>
+          <view class="nav-title">营业状态</view>
+          <view class="nav-desc">调整营业开关与门店公告</view>
+        </view>
+        <text class="nav-arrow">></text>
+      </view>
+      <view class="nav-item" data-url="/pages/admin-menu/index" bindtap="navigateToPage">
+        <view>
+          <view class="nav-title">菜单管理</view>
+          <view class="nav-desc">新增、编辑和删除菜品</view>
+        </view>
+        <text class="nav-arrow">></text>
+      </view>
+      <view class="nav-item" data-url="/pages/admin-orders/index" bindtap="navigateToPage">
+        <view>
+          <view class="nav-title">订单管理</view>
+          <view class="nav-desc">查看订单并更新履约状态</view>
+        </view>
+        <text class="nav-arrow">></text>
+      </view>
+    </view>
+  </view>
+
+  <view class="card latest-card">
+    <view class="section-title">最新订单</view>
+    <view wx:if="{{dashboard.latestOrders.length === 0}}" class="empty-text">当前暂无订单</view>
+    <view wx:for="{{dashboard.latestOrders}}" wx:key="id" class="latest-item">
+      <view class="latest-top">
+        <text>{{item.orderNo}}</text>
+        <text class="latest-status">{{item.status}}</text>
+      </view>
+      <view class="latest-bottom">
+        <text>{{item.customerName}} · {{item.deskCode}}</text>
+        <text>¥{{item.totalAmount}}</text>
+      </view>
+    </view>
+  </view>
+</view>

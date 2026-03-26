@@ -1,0 +1,8 @@
+<view class="page">
+  <view class="card login-card">
+    <view class="title">老板登录</view>
+    <input class="input" value="{{username}}" data-field="username" bindinput="handleInput" placeholder="用户名" />
+    <input class="input" value="{{password}}" data-field="password" bindinput="handleInput" placeholder="密码" password />
+    <button class="primary-button" bindtap="login">登录并进入管理</button>
+  </view>
+</view>

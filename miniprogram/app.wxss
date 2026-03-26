@@ -1,0 +1,17 @@
+page {
+  background: linear-gradient(180deg, #fbf6ef 0%, #f4eadf 100%);
+  color: #2a1c12;
+  font-family: "PingFang SC", sans-serif;
+}
+
+.card {
+  background: rgba(255, 250, 244, 0.92);
+  border-radius: 28rpx;
+  box-shadow: 0 24rpx 60rpx rgba(87, 43, 12, 0.1);
+}
+
+.primary-button {
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #c56a3d, #8d3818);
+  color: #fff7f0;
+}

@@ -1,0 +1,35 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+logs/
+
+# Java / Maven
+backend/target/
+backend/.mvn/
+
+# Node / Vite
+admin-web/node_modules/
+admin-web/dist/
+
+# WeChat Mini Program local files
+miniprogram/node_modules/
+miniprogram/miniprogram_npm/
+miniprogram/dist/
+miniprogram/project.private.config.json
+miniprogram/.idea/
+
+# Env
+.env
+.env.*
+
+# Temporary files
+*.tmp
+*.temp

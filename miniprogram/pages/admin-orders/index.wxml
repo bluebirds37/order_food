@@ -1,0 +1,23 @@
+<view class="page">
+  <view wx:if="{{orders.length === 0}}" class="card empty-card">当前暂无订单</view>
+  <view class="card order-card" wx:for="{{orders}}" wx:key="id">
+    <view class="row top-row">
+      <text class="order-no">{{item.orderNo}}</text>
+      <text class="status">{{item.status}}</text>
+    </view>
+    <view class="row"><text>{{item.customerName}}</text><text>桌号 {{item.deskCode}}</text></view>
+    <view class="row"><text>金额 ¥{{item.totalAmount}}</text><text>{{item.createdTime}}</text></view>
+    <view class="item-list">
+      <view class="item-row" wx:for="{{item.items}}" wx:for-item="detail" wx:key="menuItemId">
+        <text>{{detail.itemName}} x {{detail.quantity}}</text>
+        <text>¥{{detail.price}}</text>
+      </view>
+    </view>
+    <view class="button-row">
+      <button class="light-button" data-id="{{item.id}}" data-status="PAID" bindtap="updateStatus">已支付</button>
+      <button class="light-button" data-id="{{item.id}}" data-status="PREPARING" bindtap="updateStatus">制作中</button>
+      <button class="light-button" data-id="{{item.id}}" data-status="COMPLETED" bindtap="updateStatus">已完成</button>
+      <button class="warn-button" data-id="{{item.id}}" data-status="CANCELLED" bindtap="updateStatus">取消</button>
+    </view>
+  </view>
+</view>

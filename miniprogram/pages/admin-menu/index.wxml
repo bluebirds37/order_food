@@ -1,0 +1,51 @@
+<view class="page">
+  <view class="toolbar card">
+    <view>
+      <view class="title">今日菜单</view>
+      <view class="desc">支持新增、编辑和删除菜品</view>
+    </view>
+    <button class="primary-button toolbar-button" bindtap="openCreate">新增菜品</button>
+  </view>
+
+  <view class="card list-card" wx:for="{{menuItems}}" wx:key="id">
+    <image class="cover" src="{{item.imageUrl}}" mode="aspectFill" />
+    <view class="content">
+      <view class="top-row">
+        <text class="name">{{item.name}}</text>
+        <text class="price">¥{{item.price}}</text>
+      </view>
+      <view class="meta">{{item.categoryName}} · {{item.available ? '在售' : '停售'}} · 排序 {{item.sortOrder}}</view>
+      <view class="description">{{item.description}}</view>
+      <view class="action-row">
+        <button class="light-button" data-id="{{item.id}}" bindtap="openEdit">编辑</button>
+        <button class="warn-button" data-id="{{item.id}}" bindtap="deleteItem">删除</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showEditor}}" class="mask">
+    <view class="editor card">
+      <view class="editor-title">{{form.id ? '编辑菜品' : '新增菜品'}}</view>
+      <picker range="{{categories}}" range-key="name" bindchange="handleCategoryChange">
+        <view class="picker-field">分类：{{currentCategoryName}}</view>
+      </picker>
+      <input class="input" value="{{form.name}}" data-field="name" bindinput="handleInput" placeholder="菜品名称" />
+      <input class="input" value="{{form.price}}" data-field="price" bindinput="handleInput" placeholder="价格" />
+      <input class="input" value="{{form.imageUrl}}" data-field="imageUrl" bindinput="handleInput" placeholder="图片地址" />
+      <textarea class="textarea" value="{{form.description}}" data-field="description" bindinput="handleInput" placeholder="菜品描述"></textarea>
+      <input class="input" value="{{form.sortOrder}}" data-field="sortOrder" bindinput="handleInput" placeholder="排序值" />
+      <view class="switch-row">
+        <text>推荐菜</text>
+        <switch checked="{{form.recommended}}" data-field="recommended" bindchange="handleSwitch" color="#b6542b" />
+      </view>
+      <view class="switch-row">
+        <text>是否在售</text>
+        <switch checked="{{form.available}}" data-field="available" bindchange="handleSwitch" color="#b6542b" />
+      </view>
+      <view class="footer-row">
+        <button class="light-button" bindtap="closeEditor">取消</button>
+        <button class="primary-button" bindtap="submitForm">保存</button>
+      </view>
+    </view>
+  </view>
+</view>

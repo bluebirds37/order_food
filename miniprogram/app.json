@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/menu/index",
+    "pages/order-detail/index",
+    "pages/order-history/index",
+    "pages/admin/index",
+    "pages/admin-login/index",
+    "pages/admin-menu/index",
+    "pages/admin-orders/index",
+    "pages/admin-status/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "食光小馆",
+    "navigationBarBackgroundColor": "#f6efe6",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6efe6"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

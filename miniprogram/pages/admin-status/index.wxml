@@ -1,0 +1,13 @@
+<view class="page">
+  <view class="card status-card">
+    <view class="title">营业状态设置</view>
+    <input class="input" value="{{status.storeName}}" data-field="storeName" bindinput="handleInput" placeholder="门店名称" />
+    <textarea class="textarea" value="{{status.notice}}" data-field="notice" bindinput="handleInput" placeholder="营业公告" />
+    <view class="switch-row">
+      <text>是否营业</text>
+      <switch checked="{{status.open}}" bindchange="handleSwitch" color="#b6542b" />
+    </view>
+    <button class="primary-button" bindtap="saveStatus">保存设置</button>
+    <button class="light-button" bindtap="backDashboard">返回工作台</button>
+  </view>
+</view>

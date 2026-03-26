@@ -1,0 +1,4 @@
+.page { padding: 24rpx; display: flex; align-items: center; min-height: 100vh; }
+.login-card { width: 100%; padding: 32rpx; }
+.title { font-size: 38rpx; font-weight: 700; margin-bottom: 20rpx; }
+.input { background: #fff; height: 88rpx; border-radius: 18rpx; padding: 0 24rpx; margin-bottom: 18rpx; }
