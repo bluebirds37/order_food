@@ -1,8 +1,29 @@
-<view class="page">
-  <view class="card history-card" wx:for="{{orders}}" wx:key="id">
-    <view class="row"><text>订单号</text><text>{{item.orderNo}}</text></view>
-    <view class="row"><text>状态</text><text>{{item.status}}</text></view>
-    <view class="row"><text>金额</text><text>¥{{item.totalAmount}}</text></view>
-    <view class="row"><text>时间</text><text>{{item.createdTime}}</text></view>
+<view class="page history-page">
+  <view class="page-head">
+    <view class="page-title">我的订单</view>
+    <view class="page-sub">点击订单可查看菜品明细与金额</view>
+  </view>
+
+  <view wx:if="{{orders.length === 0}}" class="card empty-card">
+    <view class="empty-title">还没有订单</view>
+    <view class="empty-text">返回菜单点餐后，订单会出现在这里</view>
+  </view>
+
+  <view class="card history-card" wx:for="{{orders}}" wx:key="id" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="history-top">
+      <text class="order-no">{{item.orderNo}}</text>
+      <text class="status-chip {{item.status === 'PAID' ? 'is-paid' : item.status === 'PREPARING' ? 'is-preparing' : item.status === 'COMPLETED' ? 'is-completed' : 'is-cancelled'}}">{{item.statusText}}</text>
+    </view>
+    <view class="history-meta">
+      <text class="meta-label">下单时间</text>
+      <text class="history-time">{{item.createdTime}}</text>
+    </view>
+    <view class="history-foot">
+      <view class="history-amount-box">
+        <text class="meta-label">订单金额</text>
+        <text class="history-amount">¥{{item.totalAmount}}</text>
+      </view>
+      <text class="history-arrow">查看明细 ›</text>
+    </view>
   </view>
 </view>

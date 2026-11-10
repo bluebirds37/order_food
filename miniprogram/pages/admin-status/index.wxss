@@ -1,7 +1,21 @@
-.page { padding: 24rpx; }
-.status-card { padding: 28rpx; }
-.title { font-size: 36rpx; font-weight: 700; margin-bottom: 20rpx; }
-.input, .textarea { background: #fff; border-radius: 18rpx; padding: 20rpx 24rpx; margin-bottom: 18rpx; }
-.textarea { min-height: 180rpx; width: 100%; }
-.switch-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20rpx; }
-.light-button { margin-top: 18rpx; border-radius: 999rpx; background: #fff0e6; color: #9f4d2a; }
+.settings-page {
+  gap: var(--sp-4);
+}
+
+.form-card {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.switch-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}

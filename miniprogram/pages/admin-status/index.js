@@ -1,25 +1,32 @@
 const { request } = require('../../utils/request')
+const { requireAdmin, tenantQuery } = require('../../utils/admin')
 
 Page({
   data: {
+    tenantCode: '',
     status: {
       storeName: '',
       notice: '',
+      intro: '',
       open: false
     }
   },
 
   onShow() {
-    if (!wx.getStorageSync('adminToken')) {
-      wx.redirectTo({ url: '/pages/admin-login/index' })
+    const session = requireAdmin()
+    if (!session) {
       return
     }
-    this.loadData()
+    this.setData({ tenantCode: session.tenantCode })
+    this.loadData(session.tenantCode)
   },
 
-  async loadData() {
+  async loadData(tenantCode) {
     try {
-      const status = await request({ url: '/business/status', method: 'GET' })
+      const status = await request({
+        url: `/business/status${tenantQuery(tenantCode)}`,
+        method: 'GET'
+      })
       this.setData({ status })
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
@@ -37,7 +44,11 @@ Page({
 
   async saveStatus() {
     try {
-      await request({ url: '/business/status', method: 'PUT', data: this.data.status })
+      await request({
+        url: `/business/status${tenantQuery(this.data.tenantCode)}`,
+        method: 'PUT',
+        data: this.data.status
+      })
       wx.showToast({ title: '保存成功', icon: 'success' })
     } catch (error) {
       wx.showToast({ title: error.message || '保存失败', icon: 'none' })

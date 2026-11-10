@@ -1,4 +1,65 @@
-.page { padding: 24rpx; display: flex; align-items: center; min-height: 100vh; }
-.login-card { width: 100%; padding: 32rpx; }
-.title { font-size: 38rpx; font-weight: 700; margin-bottom: 20rpx; }
-.input { background: #fff; height: 88rpx; border-radius: 18rpx; padding: 0 24rpx; margin-bottom: 18rpx; }
+.admin-auth {
+  justify-content: center;
+  gap: var(--sp-5);
+}
+
+.auth-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0 var(--sp-1);
+  gap: var(--sp-2);
+}
+
+.auth-title {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: var(--ink-900);
+}
+
+.auth-sub {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  color: var(--ink-500);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.tenant-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 48rpx;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--brand-50);
+  border: 1rpx solid var(--brand-100);
+  color: var(--brand-700);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.tenant-code {
+  color: var(--ink-400);
+  font-size: var(--fs-xs);
+}
+
+.auth-card {
+  padding: var(--sp-5) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.auth-submit {
+  margin-top: var(--sp-1);
+}
+
+.auth-note {
+  padding: 0 var(--sp-2);
+  color: var(--ink-400);
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+}

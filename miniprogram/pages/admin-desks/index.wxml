@@ -1,0 +1,21 @@
+<view class="page desks-page">
+  <view class="card section-card">
+    <view class="section-head">
+      <view class="section-title">桌号管理</view>
+      <button class="primary-button add-button" bindtap="addDesk">＋ 新增桌号</button>
+    </view>
+    <view class="section-sub">顾客点餐时从以下桌号中选择</view>
+
+    <view wx:if="{{loading}}" class="empty-state">加载中…</view>
+    <view wx:elif="{{desks.length === 0}}" class="empty-state">暂未配置桌号，点击右上角新增</view>
+    <view wx:else class="desk-grid">
+      <view wx:for="{{desks}}" wx:key="id" class="desk-card">
+        <view class="desk-code">{{item.deskCode}}</view>
+        <view class="desk-actions">
+          <view class="desk-action" data-id="{{item.id}}" data-code="{{item.deskCode}}" bindtap="editDesk">改名</view>
+          <view class="desk-action is-danger" data-id="{{item.id}}" data-code="{{item.deskCode}}" bindtap="deleteDesk">删除</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

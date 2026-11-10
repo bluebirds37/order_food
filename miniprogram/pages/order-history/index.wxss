@@ -1,3 +1,72 @@
-.page { padding: 24rpx; }
-.history-card { padding: 24rpx; margin-bottom: 18rpx; }
-.row { display: flex; justify-content: space-between; margin-bottom: 10rpx; color: #6b5243; }
+.history-page {
+  gap: var(--sp-3);
+}
+
+.empty-card {
+  padding: var(--sp-6) var(--sp-4);
+  text-align: center;
+}
+
+.empty-card .empty-text {
+  margin-top: var(--sp-1);
+  color: var(--ink-400);
+  font-size: var(--fs-sm);
+}
+
+.history-card {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.history-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.order-no {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--ink-900);
+  word-break: break-all;
+}
+
+.history-meta {
+  margin-top: var(--sp-2);
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.history-time {
+  color: var(--ink-500);
+  font-size: var(--fs-xs);
+}
+
+.history-foot {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-2);
+  border-top: 1rpx solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.history-amount-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.history-amount {
+  color: var(--brand-700);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.history-arrow {
+  color: var(--brand-700);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}

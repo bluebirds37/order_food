@@ -11,9 +11,9 @@ Thumbs.db
 *.log
 logs/
 
-# Java / Maven
+# Rust
 backend/target/
-backend/.mvn/
+backend/data/
 
 # Node / Vite
 admin-web/node_modules/
@@ -29,6 +29,7 @@ miniprogram/.idea/
 # Env
 .env
 .env.*
+!backend/.env.example
 
 # Temporary files
 *.tmp

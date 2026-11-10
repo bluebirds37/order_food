@@ -1,17 +1,420 @@
+/* ---------- Design tokens ---------- */
 page {
-  background: linear-gradient(180deg, #fbf6ef 0%, #f4eadf 100%);
-  color: #2a1c12;
-  font-family: "PingFang SC", sans-serif;
+  /* Brand: terracotta */
+  --brand-800: #7a3517;
+  --brand-700: #94421f;
+  --brand-600: #b6532b;
+  --brand-500: #cc6c41;
+  --brand-100: #f8e3d4;
+  --brand-50: #fcf1e8;
+
+  /* Accent: deep green */
+  --accent-700: #2f5b49;
+  --accent-500: #45745f;
+  --accent-100: #e7f0ea;
+
+  /* Neutrals */
+  --ink-900: #241a12;
+  --ink-700: #4d3e33;
+  --ink-500: #756456;
+  --ink-400: #9b8a7c;
+  --ink-300: #b9a99b;
+  --line: #eaddd1;
+  --line-strong: #dfcdbd;
+  --surface: #fffdfa;
+  --surface-alt: #faf4ed;
+  --canvas: #f6f0e8;
+  --cream: #fff8ef;
+  --cream-muted: #dcc9b8;
+
+  /* Status */
+  --success: #2e7d5c;
+  --success-soft: #e6f2ec;
+  --warning: #a9741f;
+  --warning-soft: #fbf0dc;
+  --danger: #b23a2a;
+  --danger-soft: #fbe7e3;
+  --info: #37628c;
+  --info-soft: #e8eff7;
+
+  /* Spacing rhythm */
+  --sp-1: 8rpx;
+  --sp-2: 16rpx;
+  --sp-3: 24rpx;
+  --sp-4: 32rpx;
+  --sp-5: 40rpx;
+  --sp-6: 48rpx;
+  --sp-8: 64rpx;
+
+  /* Radius */
+  --r-sm: 14rpx;
+  --r-md: 22rpx;
+  --r-lg: 30rpx;
+  --r-xl: 38rpx;
+  --r-pill: 999rpx;
+
+  /* Type scale */
+  --fs-display: 56rpx;
+  --fs-h1: 44rpx;
+  --fs-h2: 36rpx;
+  --fs-h3: 30rpx;
+  --fs-body: 28rpx;
+  --fs-sm: 24rpx;
+  --fs-xs: 22rpx;
+
+  /* Elevation */
+  --shadow-card: 0 10rpx 30rpx rgba(66, 40, 22, 0.08);
+  --shadow-float: 0 18rpx 48rpx rgba(66, 40, 22, 0.16);
+  --shadow-hero: 0 22rpx 56rpx rgba(45, 28, 17, 0.24);
+  --shadow-brand: 0 8rpx 18rpx rgba(148, 66, 31, 0.18);
+  --shadow-brand-lg: 0 12rpx 30rpx rgba(148, 66, 31, 0.22);
+  --overlay: rgba(36, 26, 18, 0.48);
+  --surface-translucent: rgba(255, 253, 250, 0.96);
+
+  /* On dark brand panels */
+  --on-dark-fill: rgba(255, 248, 239, 0.08);
+  --on-dark-fill-soft: rgba(255, 248, 239, 0.1);
+  --on-dark-fill-strong: rgba(255, 248, 239, 0.14);
+  --on-dark-line: rgba(255, 248, 239, 0.16);
+  --on-dark-line-strong: rgba(255, 248, 239, 0.22);
+  --on-dark-text: rgba(255, 248, 239, 0.72);
+  --open-dot-color: #8fe3bd;
+  --open-dot-glow: rgba(143, 227, 189, 0.18);
+  --closed-dot-color: #e8a08f;
+
+  background: var(--canvas);
+  color: var(--ink-900);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.5;
 }
 
+view,
+text,
+input,
+textarea,
+button,
+scroll-view {
+  box-sizing: border-box;
+}
+
+/* 微信内置样式 button:not([size="mini"]) 带 184px 固定宽度，优先级为 (0,1,1)，
+   单类名 (0,1,0) 无法覆盖，因此按钮宽度一律使用「双类名/上下文」选择器设置。 */
+button {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: inherit;
+  line-height: 1.2;
+  border-radius: 0;
+}
+
+button::after {
+  border: none;
+}
+
+/* ---------- Layout ---------- */
+.page {
+  min-height: 100vh;
+  padding: var(--sp-4) var(--sp-4) calc(var(--sp-5) + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.page-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-1) var(--sp-1) 0;
+}
+
+.page-title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  color: var(--ink-900);
+}
+
+.page-sub {
+  font-size: var(--fs-sm);
+  color: var(--ink-500);
+  line-height: 1.6;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--sp-3);
+}
+
+.section-title {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--ink-900);
+}
+
+.section-sub {
+  font-size: var(--fs-xs);
+  color: var(--ink-400);
+}
+
+/* ---------- Surfaces ---------- */
 .card {
-  background: rgba(255, 250, 244, 0.92);
-  border-radius: 28rpx;
-  box-shadow: 0 24rpx 60rpx rgba(87, 43, 12, 0.1);
+  background: var(--surface);
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.brand-panel {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--r-xl);
+  background: linear-gradient(140deg, #2a1c13 0%, #4a2c1b 52%, #7a3f20 100%);
+  color: var(--cream);
+  box-shadow: var(--shadow-hero);
+}
+
+.brand-panel::after {
+  content: "";
+  position: absolute;
+  top: -190rpx;
+  right: -130rpx;
+  width: 440rpx;
+  height: 440rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 196, 143, 0.22) 0%, rgba(255, 196, 143, 0) 68%);
+  pointer-events: none;
+}
+
+.brand-mark {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 26rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--cream);
+  color: var(--brand-700);
+  font-size: 40rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  box-shadow: 0 10rpx 24rpx rgba(10, 6, 3, 0.18);
+}
+
+.brand-mark.small {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 20rpx;
+  font-size: 30rpx;
+}
+
+/* ---------- Buttons ---------- */
+.primary-button,
+.light-button,
+.warn-button {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 88rpx;
+  padding: 0 var(--sp-5);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: 1rpx;
 }
 
 .primary-button {
-  border-radius: 999rpx;
-  background: linear-gradient(135deg, #c56a3d, #8d3818);
-  color: #fff7f0;
+  background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-700) 100%);
+  color: var(--cream);
+  box-shadow: 0 10rpx 24rpx rgba(148, 66, 31, 0.24);
+}
+
+.light-button {
+  background: var(--brand-50);
+  color: var(--brand-700);
+  border: 1rpx solid var(--brand-100);
+}
+
+.warn-button {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border: 1rpx solid rgba(178, 58, 42, 0.16);
+}
+
+/* 微信内置 button:not([size="mini"]) 默认 184px，需用两级选择器提权 */
+.btn-block.btn-block {
+  width: 100%;
+}
+
+.text-link {
+  align-self: center;
+  width: auto;
+  padding: 12rpx 0;
+  color: var(--brand-700);
+  font-size: var(--fs-sm);
+}
+
+/* ---------- Form controls ---------- */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.field-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-500);
+  letter-spacing: 0.5rpx;
+}
+
+.field-hint {
+  font-size: var(--fs-xs);
+  color: var(--ink-400);
+  line-height: 1.5;
+}
+
+.input,
+.textarea,
+.picker-field {
+  width: 100%;
+  background: var(--surface);
+  border: 1rpx solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--ink-900);
+  font-size: var(--fs-body);
+}
+
+.input {
+  height: 92rpx;
+  padding: 0 var(--sp-3);
+}
+
+.textarea {
+  min-height: 190rpx;
+  padding: var(--sp-3);
+  line-height: 1.6;
+}
+
+.picker-field {
+  padding: 26rpx var(--sp-3);
+}
+
+.input-ph {
+  color: var(--ink-300);
+}
+
+.switch-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+}
+
+.switch-title {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.switch-desc {
+  margin-top: 6rpx;
+  font-size: var(--fs-xs);
+  color: var(--ink-400);
+}
+
+/* ---------- Chips ---------- */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 48rpx;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--surface-alt);
+  border: 1rpx solid var(--line);
+  color: var(--ink-500);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
+.chip-brand {
+  background: var(--brand-50);
+  border-color: var(--brand-100);
+  color: var(--brand-700);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 44rpx;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  background: var(--surface-alt);
+  color: var(--ink-500);
+}
+
+.status-chip.is-paid,
+.status-chip.is-onsale {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.status-chip.is-preparing {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.status-chip.is-completed {
+  background: var(--info-soft);
+  color: var(--info);
+}
+
+.status-chip.is-cancelled,
+.status-chip.is-off {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ---------- Helpers ---------- */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-400);
+  font-size: var(--fs-xs);
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1rpx;
+  background: var(--line);
+}
+
+.empty-state {
+  padding: var(--sp-6) var(--sp-3);
+  text-align: center;
+  color: var(--ink-400);
+  font-size: var(--fs-sm);
+  line-height: 1.7;
+}
+
+.empty-title {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  color: var(--ink-700);
+}
+
+.meta-label {
+  font-size: var(--fs-xs);
+  color: var(--ink-400);
 }

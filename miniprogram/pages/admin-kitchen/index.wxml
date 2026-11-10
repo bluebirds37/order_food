@@ -1,0 +1,63 @@
+<view class="page kitchen-page">
+  <view class="card summary-card">
+    <view class="summary-item">
+      <view class="summary-num">{{deskCount}}</view>
+      <view class="summary-label">待出餐桌</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-num">{{orderCount}}</view>
+      <view class="summary-label">待出订单</view>
+    </view>
+    <view class="summary-item">
+      <view class="summary-num">{{dishCount}}</view>
+      <view class="summary-label">待出菜品</view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="card empty-state">看板加载中…</view>
+  <view wx:elif="{{desks.length === 0}}" class="card empty-state">暂无待出餐订单，顾客下单并支付后这里会出现排餐队列</view>
+
+  <scroll-view wx:else scroll-x enhanced show-scrollbar="{{false}}" class="desk-scroll">
+    <view class="desk-track">
+      <view wx:for="{{desks}}" wx:key="deskCode" wx:for-item="desk" class="desk-column">
+        <view class="column-head">
+          <view class="column-desk">{{desk.deskCode}} 桌</view>
+          <view class="column-meta">{{desk.orderCount}} 单 · {{desk.earliestAt}} 起</view>
+        </view>
+
+        <view class="merged-panel">
+          <view class="merged-title">合并出餐清单</view>
+          <view wx:for="{{desk.mergedItems}}" wx:key="index" wx:for-item="dish" class="merged-row">
+            <view class="merged-name">
+              {{dish.itemName}}
+              <text wx:if="{{dish.flavor}}" class="dish-tag">{{dish.flavor}}</text>
+              <text wx:if="{{dish.remark}}" class="dish-tag is-remark">{{dish.remark}}</text>
+            </view>
+            <view class="merged-qty">×{{dish.quantity}}</view>
+          </view>
+        </view>
+
+        <view wx:for="{{desk.orders}}" wx:key="orderId" wx:for-item="order" class="order-block">
+          <view class="order-head">
+            <view class="order-no">取餐号 {{order.pickupNo}}</view>
+            <view class="order-status is-{{order.status === 'PAID' ? 'paid' : 'preparing'}}">{{order.statusText}}</view>
+          </view>
+          <view wx:for="{{order.items}}" wx:key="index" wx:for-item="dish" class="order-item">
+            <text class="order-item-name">{{dish.itemName}} ×{{dish.quantity}}</text>
+            <text wx:if="{{dish.flavor}}" class="dish-tag">{{dish.flavor}}</text>
+            <text wx:if="{{dish.remark}}" class="dish-tag is-remark">{{dish.remark}}</text>
+          </view>
+          <button
+            wx:if="{{order.action}}"
+            class="primary-button order-action"
+            data-id="{{order.orderId}}"
+            data-next="{{order.action.next}}"
+            bindtap="advanceOrder"
+          >{{order.action.label}}</button>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="board-hint">桌列从左到右按下单先后排列 · 同桌订单合并为一份出餐清单</view>
+</view>

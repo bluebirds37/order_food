@@ -1,0 +1,92 @@
+.entry-page {
+  gap: var(--sp-4);
+  padding-top: var(--sp-4);
+}
+
+.entry-hero {
+  padding: var(--sp-6) var(--sp-5) var(--sp-5);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-eyebrow {
+  margin-top: var(--sp-4);
+  color: var(--brand-100);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: 4rpx;
+}
+
+.hero-title {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-display);
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  line-height: 1.25;
+}
+
+.hero-desc {
+  margin-top: var(--sp-2);
+  max-width: 560rpx;
+  color: var(--cream-muted);
+  font-size: var(--fs-sm);
+  line-height: 1.75;
+}
+
+.last-store {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding: 12rpx var(--sp-2);
+  border-radius: var(--r-pill);
+  background: var(--on-dark-fill-strong);
+}
+
+.last-store-label {
+  color: var(--cream-muted);
+  font-size: var(--fs-xs);
+}
+
+.last-store-name {
+  color: var(--cream);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.scan-card {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.scan-card .divider {
+  margin: var(--sp-1) 0;
+}
+
+.scan-card .admin-link {
+  width: 100%;
+  margin-top: var(--sp-1);
+  padding: var(--sp-2) 0;
+  color: var(--ink-500);
+  font-size: var(--fs-sm);
+}
+
+.tip-card {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.tip-title {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.tip-desc {
+  margin-top: var(--sp-1);
+  color: var(--ink-500);
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+}

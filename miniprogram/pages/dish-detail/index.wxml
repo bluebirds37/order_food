@@ -1,0 +1,29 @@
+<view class="page dish-detail-page">
+  <view wx:if="{{banners.length}}" class="detail-swiper-wrap">
+    <swiper class="detail-swiper" circular indicator-dots indicator-color="rgba(255,253,250,0.5)" indicator-active-color="#fffdfa">
+      <swiper-item wx:for="{{banners}}" wx:key="*this">
+        <image class="detail-banner" src="{{item}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+  </view>
+  <view wx:else class="detail-swiper-wrap">
+    <view class="detail-banner image-placeholder">暂无图片</view>
+  </view>
+
+  <view class="card detail-body">
+    <view class="detail-head">
+      <view class="detail-name-block">
+        <view class="detail-name">{{dish.name}}</view>
+        <view wx:if="{{dish.categoryName}}" class="detail-category">{{dish.categoryName}}</view>
+      </view>
+      <view class="detail-price"><text class="price-symbol">¥</text>{{dish.price}}</view>
+    </view>
+
+    <view class="detail-section-title">菜品介绍</view>
+    <view class="detail-text">{{dish.description || '门店今日供应'}}</view>
+  </view>
+
+  <view wx:if="{{!loading && dish}}" class="detail-actions">
+    <button class="primary-button detail-add-button" bindtap="addToCart">＋ 加入购物车</button>
+  </view>
+</view>

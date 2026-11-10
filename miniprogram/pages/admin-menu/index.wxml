@@ -1,51 +1,151 @@
-<view class="page">
-  <view class="toolbar card">
-    <view>
-      <view class="title">今日菜单</view>
-      <view class="desc">支持新增、编辑和删除菜品</view>
+<view class="page manage-page">
+  <view class="card toolbar">
+    <view class="toolbar-head">
+      <view class="toolbar-copy">
+        <view class="page-title">今日菜单</view>
+        <view class="page-sub">新增、编辑、上下架与分类维护</view>
+      </view>
+      <view class="dish-total">{{menuItems.length}} 道</view>
     </view>
-    <button class="primary-button toolbar-button" bindtap="openCreate">新增菜品</button>
+    <view class="toolbar-actions">
+      <button class="light-button" bindtap="previewMenu">预览顾客端</button>
+      <button class="light-button" bindtap="toggleCategories">分类管理</button>
+      <button class="primary-button" bindtap="openCreate">新增菜品</button>
+    </view>
+  </view>
+
+  <view wx:if="{{showCategories}}" class="card category-card">
+    <view class="section-head">
+      <view class="section-title">菜单分类</view>
+      <view class="section-sub">{{categories.length}} 个分类</view>
+    </view>
+    <view wx:for="{{categories}}" wx:key="id" class="category-row">
+      <view class="category-copy">
+        <text class="category-name">{{item.name}}</text>
+        <text class="category-order">排序 {{item.sortOrder}}</text>
+      </view>
+      <view class="category-actions">
+        <button class="light-button small-button" data-id="{{item.id}}" bindtap="editCategory">重命名</button>
+        <button class="warn-button small-button" data-id="{{item.id}}" bindtap="deleteCategory">删除</button>
+      </view>
+    </view>
+    <view wx:if="{{categories.length === 0}}" class="empty-state compact">暂无分类，请先新增分类</view>
+    <button class="primary-button btn-block add-category-button" bindtap="addCategory">新增分类</button>
   </view>
 
   <view class="card list-card" wx:for="{{menuItems}}" wx:key="id">
-    <image class="cover" src="{{item.imageUrl}}" mode="aspectFill" />
+    <image wx:if="{{item.imageUrl}}" class="cover" src="{{item.imageUrl}}" mode="aspectFill" />
+    <view wx:else class="cover image-placeholder">暂无图</view>
     <view class="content">
       <view class="top-row">
-        <text class="name">{{item.name}}</text>
+        <view class="name-row">
+          <text class="name">{{item.name}}</text>
+          <text wx:if="{{item.recommended}}" class="dish-flag">推荐</text>
+        </view>
         <text class="price">¥{{item.price}}</text>
       </view>
-      <view class="meta">{{item.categoryName}} · {{item.available ? '在售' : '停售'}} · 排序 {{item.sortOrder}}</view>
-      <view class="description">{{item.description}}</view>
+      <view class="meta-row">
+        <text class="meta">{{item.categoryName}} · 排序 {{item.sortOrder}}</text>
+        <text class="status-chip {{item.available ? 'is-onsale' : 'is-off'}}">{{item.available ? '在售' : '停售'}}</text>
+      </view>
+      <view class="description">{{item.description || '暂无菜品描述'}}</view>
       <view class="action-row">
-        <button class="light-button" data-id="{{item.id}}" bindtap="openEdit">编辑</button>
-        <button class="warn-button" data-id="{{item.id}}" bindtap="deleteItem">删除</button>
+        <button class="light-button small-button" data-id="{{item.id}}" bindtap="openEdit">编辑</button>
+        <button class="light-button small-button" data-id="{{item.id}}" bindtap="editPrice">改价</button>
+        <button class="light-button small-button" data-id="{{item.id}}" bindtap="toggleAvailable">{{item.available ? '下架' : '上架'}}</button>
+        <button class="warn-button small-button" data-id="{{item.id}}" bindtap="deleteItem">删除</button>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{showEditor}}" class="mask">
-    <view class="editor card">
+  <view wx:if="{{menuItems.length === 0}}" class="card empty-state">还没有菜品，点击「新增菜品」开始配置。</view>
+</view>
+
+<view wx:if="{{showEditor}}" class="mask">
+  <view class="editor">
+    <view class="editor-head">
       <view class="editor-title">{{form.id ? '编辑菜品' : '新增菜品'}}</view>
-      <picker range="{{categories}}" range-key="name" bindchange="handleCategoryChange">
-        <view class="picker-field">分类：{{currentCategoryName}}</view>
-      </picker>
-      <input class="input" value="{{form.name}}" data-field="name" bindinput="handleInput" placeholder="菜品名称" />
-      <input class="input" value="{{form.price}}" data-field="price" bindinput="handleInput" placeholder="价格" />
-      <input class="input" value="{{form.imageUrl}}" data-field="imageUrl" bindinput="handleInput" placeholder="图片地址" />
-      <textarea class="textarea" value="{{form.description}}" data-field="description" bindinput="handleInput" placeholder="菜品描述"></textarea>
-      <input class="input" value="{{form.sortOrder}}" data-field="sortOrder" bindinput="handleInput" placeholder="排序值" />
+      <view class="editor-close" bindtap="closeEditor">×</view>
+    </view>
+
+    <scroll-view scroll-y class="editor-body">
+      <view class="field">
+        <text class="field-label">分类</text>
+        <picker range="{{categories}}" range-key="name" bindchange="handleCategoryChange">
+          <view class="picker-field">{{currentCategoryName || '请选择分类'}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="field-label">菜品名称</text>
+        <input class="input" value="{{form.name}}" data-field="name" bindinput="handleInput" placeholder="例如：招牌牛肉面" placeholder-class="input-ph" />
+      </view>
+
+      <view class="field">
+        <text class="field-label">价格</text>
+        <input class="input" value="{{form.price}}" type="digit" data-field="price" bindinput="handleInput" placeholder="0.00" placeholder-class="input-ph" />
+      </view>
+
+      <view class="field">
+        <text class="field-label">菜品图片</text>
+        <view class="image-row">
+          <image wx:if="{{form.imageUrl}}" class="image-preview" src="{{form.imageUrl}}" mode="aspectFill" />
+          <view wx:else class="image-preview image-placeholder">暂无图</view>
+          <view class="image-actions">
+            <button class="light-button" bindtap="chooseImage" disabled="{{uploading}}">{{uploading ? '上传中...' : (form.imageUrl ? '替换图片' : '上传图片')}}</button>
+            <button wx:if="{{form.imageUrl}}" class="warn-button" bindtap="removeImage">移除图片</button>
+          </view>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="field-label">图片地址</text>
+        <input class="input" value="{{form.imageUrl}}" data-field="imageUrl" bindinput="handleInput" placeholder="可手动填写图片地址" placeholder-class="input-ph" />
+      </view>
+
+      <view class="field">
+        <text class="field-label">菜品描述</text>
+        <textarea class="textarea" value="{{form.description}}" data-field="description" bindinput="handleInput" placeholder="口味、食材或推荐理由" placeholder-class="input-ph"></textarea>
+      </view>
+
+      <view class="field">
+        <text class="field-label">口味选项</text>
+        <text class="field-hint">顾客加菜时可选，多个选项用、分隔，如：微辣、中辣、免辣</text>
+        <input class="input" value="{{form.optionsText}}" data-field="optionsText" bindinput="handleInput" placeholder="微辣、中辣、免辣" placeholder-class="input-ph" />
+      </view>
+
+      <view class="field">
+        <text class="field-label">详情图片 banner</text>
+        <text class="field-hint">顾客点开菜品时顶部轮播展示，类似小红书图文详情，最多9张</text>
+        <view class="detail-image-grid">
+          <view class="detail-image-item" wx:for="{{form.detailImages}}" wx:key="*this">
+            <image class="detail-image-thumb" src="{{item}}" mode="aspectFill" />
+            <view class="detail-image-remove" data-index="{{index}}" catchtap="removeDetailImage">×</view>
+          </view>
+          <view class="detail-image-add" bindtap="addDetailImages">
+            <text>＋ 添加</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="field-label">排序值</text>
+        <input class="input" value="{{form.sortOrder}}" data-field="sortOrder" bindinput="handleInput" placeholder="数字越小越靠前" placeholder-class="input-ph" />
+      </view>
+
       <view class="switch-row">
-        <text>推荐菜</text>
-        <switch checked="{{form.recommended}}" data-field="recommended" bindchange="handleSwitch" color="#b6542b" />
+        <text class="switch-title">推荐菜</text>
+        <switch checked="{{form.recommended}}" data-field="recommended" bindchange="handleSwitch" color="#b6532b" />
       </view>
       <view class="switch-row">
-        <text>是否在售</text>
-        <switch checked="{{form.available}}" data-field="available" bindchange="handleSwitch" color="#b6542b" />
+        <text class="switch-title">是否在售</text>
+        <switch checked="{{form.available}}" data-field="available" bindchange="handleSwitch" color="#b6532b" />
       </view>
-      <view class="footer-row">
-        <button class="light-button" bindtap="closeEditor">取消</button>
-        <button class="primary-button" bindtap="submitForm">保存</button>
-      </view>
+    </scroll-view>
+
+    <view class="footer-row">
+      <button class="light-button" bindtap="closeEditor">取消</button>
+      <button class="primary-button" bindtap="submitForm">保存</button>
     </view>
   </view>
 </view>

@@ -1,38 +1,216 @@
-<view class="page">
-  <view class="hero card">
-    <view>
-      <view class="store-name">{{businessStatus.storeName}}</view>
-      <view class="notice">{{businessStatus.notice}}</view>
-      <view class="desk">当前桌号：{{deskCode}}</view>
-      <view class="status-text">{{businessStatus.open ? '正在营业，可直接下单' : '门店暂未营业，请稍后再来'}}</view>
-    </view>
-    <button class="history-button" bindtap="goHistory">历史订单</button>
+<view class="page menu-page">
+  <view wx:if="{{preview}}" class="card preview-banner">
+    <text class="preview-text">预览模式 · 以下为顾客扫码后看到的菜单</text>
+    <button class="light-button preview-back" bindtap="goBackPreview">返回菜单管理</button>
   </view>
 
-  <view class="card customer-card">
-    <input class="input" placeholder="请输入用餐人姓名" data-field="customerName" bindinput="handleInput" />
-    <input class="input" placeholder="请输入联系电话" type="number" data-field="customerPhone" bindinput="handleInput" />
-  </view>
-
-  <view class="menu-list">
-    <view class="card dish-card" wx:for="{{menuItems}}" wx:key="id">
-      <image class="dish-image" src="{{item.imageUrl}}" mode="aspectFill" />
-      <view class="dish-content">
-        <view class="dish-top">
-          <text class="dish-name">{{item.name}}</text>
-          <text class="dish-price">¥{{item.price}}</text>
-        </view>
-        <view class="dish-desc">{{item.description}}</view>
-        <button class="primary-button add-button" data-id="{{item.id}}" bindtap="addToCart">加入点单</button>
+  <view class="brand-panel store-hero">
+    <view class="store-top">
+      <view class="store-info">
+        <view class="store-eyebrow">门店</view>
+        <view class="store-name">{{businessStatus.storeName || tenantName}}</view>
+        <view class="store-code">{{tenantCode}}</view>
+      </view>
+      <view class="open-pill {{businessStatus.open ? 'is-open' : 'is-closed'}}">
+        <view class="open-dot"></view>
+        <text>{{businessStatus.open ? '营业中' : '休息中'}}</text>
       </view>
     </view>
+    <view class="desk-row" bindtap="openDeskPopup">
+      <view class="desk-icon">桌</view>
+      <view class="desk-info">
+        <text class="desk-label">当前桌号</text>
+        <text class="desk-value">{{deskCode || '未绑定'}}</text>
+      </view>
+      <view class="desk-change">点击选择</view>
+    </view>
+    <view wx:if="{{businessStatus.intro}}" class="store-intro">{{businessStatus.intro}}</view>
+    <view wx:if="{{businessStatus.notice}}" class="store-notice">公告 · {{businessStatus.notice}}</view>
   </view>
 
-  <view class="submit-bar card">
-    <view>
-      <view class="cart-count">已选 {{cartTypeCount}} 种菜品</view>
-      <view class="cart-total">合计：¥{{cartTotal}}</view>
+  <view class="card customer-card" wx:if="{{loggedIn && !preview}}">
+    <view class="customer-avatar">客</view>
+    <view class="customer-info">
+      <view class="customer-name">{{customerNickname || '顾客'}}</view>
+      <view class="customer-phone">{{needBindPhone ? '未绑定手机号' : customerPhone}}</view>
     </view>
-    <button class="primary-button submit-button" bindtap="submitOrder">提交订单</button>
+    <button wx:if="{{needBindPhone}}" class="bind-phone-button" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">绑定手机号</button>
+    <button class="logout-link" bindtap="logout">退出</button>
+  </view>
+  <view class="card customer-card guest-card" wx:elif="{{!preview}}">
+    <view class="guest-copy">
+      <view class="guest-title">{{wxLoggingIn ? '正在登录…' : '微信一键登录'}}</view>
+      <view class="guest-text">{{wxLoggingIn ? '微信授权中，请稍候' : '无感登录后可下单并查看历史订单'}}</view>
+    </view>
+    <button class="primary-button login-button" loading="{{wxLoggingIn}}" bindtap="ensureWxLogin">{{wxLoggingIn ? '登录中…' : '微信登录'}}</button>
+  </view>
+
+  <view class="menu-head">
+    <view class="section-title">今日菜单</view>
+    <view class="menu-count">{{menuItems.length}} 道菜</view>
+  </view>
+
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <view class="search-icon">⌕</view>
+      <input
+        class="search-input"
+        placeholder="搜索菜品、口味"
+        placeholder-class="search-ph"
+        value="{{searchText}}"
+        confirm-type="search"
+        bindinput="onSearchInput"
+      />
+      <view wx:if="{{searchText}}" class="search-clear" bindtap="clearSearch">×</view>
+    </view>
+  </view>
+
+  <view wx:if="{{!searching && menuGroups.length}}" class="cat-bar">
+    <scroll-view scroll-x class="cat-scroll" enhanced show-scrollbar="{{false}}">
+      <view class="cat-chips">
+        <view
+          wx:for="{{menuGroups}}"
+          wx:key="id"
+          class="cat-chip {{activeCategoryId === item.id ? 'is-active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="selectCategory"
+        >{{item.name}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <block wx:if="{{!searching}}">
+    <view wx:for="{{menuGroups}}" wx:key="id" id="cat-{{item.id}}" class="menu-group">
+      <view class="group-title">
+        <text>{{item.name}}</text>
+        <text class="group-count">{{item.items.length}} 道</text>
+      </view>
+      <view class="menu-list">
+        <view class="card dish-card" wx:for="{{item.items}}" wx:for-item="dish" wx:key="id" data-id="{{dish.id}}" bindtap="openDishDetail">
+          <image wx:if="{{dish.imageUrl}}" class="dish-image" src="{{dish.imageUrl}}" mode="aspectFill" />
+          <view wx:else class="dish-image image-placeholder">暂无图片</view>
+          <view class="dish-content">
+            <view class="dish-top">
+              <text class="dish-name">{{dish.name}}</text>
+              <text wx:if="{{dish.recommended}}" class="dish-flag">推荐</text>
+            </view>
+            <view class="dish-category">{{dish.categoryName}}</view>
+            <view class="dish-desc">{{dish.description || '门店今日供应'}}</view>
+            <view class="dish-bottom">
+              <view class="dish-price"><text class="price-symbol">¥</text>{{dish.price}}</view>
+              <button wx:if="{{!preview}}" class="add-button" data-id="{{dish.id}}" catchtap="openDishPopup">＋ 加入</button>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{menuItems.length === 0}}" class="card empty-state">门店还没有上架菜品，请稍后再来。</view>
+  </block>
+
+  <block wx:else>
+    <view class="menu-list">
+      <view class="search-result-tip">找到 {{filteredItems.length}} 道相关菜品</view>
+      <view class="card dish-card" wx:for="{{filteredItems}}" wx:key="id" data-id="{{item.id}}" bindtap="openDishDetail">
+        <image wx:if="{{item.imageUrl}}" class="dish-image" src="{{item.imageUrl}}" mode="aspectFill" />
+        <view wx:else class="dish-image image-placeholder">暂无图片</view>
+        <view class="dish-content">
+          <view class="dish-top">
+            <text class="dish-name">{{item.name}}</text>
+            <text wx:if="{{item.recommended}}" class="dish-flag">推荐</text>
+          </view>
+          <view class="dish-category">{{item.categoryName}}</view>
+          <view class="dish-desc">{{item.description || '门店今日供应'}}</view>
+          <view class="dish-bottom">
+            <view class="dish-price"><text class="price-symbol">¥</text>{{item.price}}</view>
+            <button wx:if="{{!preview}}" class="add-button" data-id="{{item.id}}" catchtap="openDishPopup">＋ 加入</button>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{filteredItems.length === 0}}" class="card empty-state">没有找到相关菜品，换个关键词试试</view>
+    </view>
+  </block>
+
+  <view wx:if="{{appendOrderId}}" class="card append-banner">
+    <view class="append-copy">加菜模式 · 订单 {{appendOrderNo}}</view>
+    <view class="append-hint">所选菜品将加入当前消费</view>
+  </view>
+
+  <view wx:if="{{!preview}}" class="cart-bar">
+    <view class="cart-summary">
+      <view class="cart-count">已选 <text class="cart-count-num">{{cartTypeCount}}</text> 种菜品</view>
+      <view class="cart-total"><text class="cart-total-label">合计</text><text class="cart-total-price">¥{{cartTotal}}</text></view>
+    </view>
+    <button class="primary-button submit-button" bindtap="submitOrder">{{appendOrderId ? '加入订单' : '提交订单'}}</button>
+    <button class="light-button history-mini" bindtap="goHistory">历史订单</button>
+  </view>
+
+  <view wx:if="{{dishPopup}}" class="popup-mask" bindtap="closeDishPopup">
+    <view class="popup-panel" wx:if="{{popupItem}}" catchtap="stopBubble">
+      <view class="popup-head">
+        <view class="popup-title">{{popupItem.name}}</view>
+        <view class="popup-close" bindtap="closeDishPopup">×</view>
+      </view>
+
+      <view wx:if="{{popupOptions.length}}" class="popup-section">
+        <view class="popup-label">口味</view>
+        <view class="flavor-list">
+          <view
+            wx:for="{{popupOptions}}"
+            wx:key="*this"
+            class="flavor-chip {{popupSelectedFlavor === item ? 'is-active' : ''}}"
+            data-flavor="{{item}}"
+            bindtap="selectFlavor"
+          >{{item}}</view>
+        </view>
+      </view>
+
+      <view class="popup-section">
+        <view class="popup-label">备注</view>
+        <textarea
+          class="popup-remark"
+          value="{{popupRemark}}"
+          placeholder="口味偏好、忌口等，可留给商家备注"
+          maxlength="100"
+          bindinput="popupRemarkInput"
+        ></textarea>
+      </view>
+
+      <view class="popup-section popup-quantity-row">
+        <view class="popup-label">数量</view>
+        <view class="quantity-stepper">
+          <view class="stepper-button {{popupQuantity <= 1 ? 'is-disabled' : ''}}" bindtap="popupQuantityMinus">－</view>
+          <view class="stepper-num">{{popupQuantity}}</view>
+          <view class="stepper-button" bindtap="popupQuantityPlus">＋</view>
+        </view>
+      </view>
+
+      <button class="primary-button popup-confirm" bindtap="confirmDishPopup">
+        加入购物车 ¥{{popupItem.price * popupQuantity}}
+      </button>
+    </view>
+  </view>
+
+  <view wx:if="{{deskPopup}}" class="popup-mask" bindtap="closeDeskPopup">
+    <view class="popup-panel desk-panel" catchtap="stopBubble">
+      <view class="popup-head">
+        <view class="popup-title">选择桌号</view>
+        <view class="popup-close" bindtap="closeDeskPopup">×</view>
+      </view>
+
+      <view wx:if="{{deskLoading}}" class="desk-loading">桌号加载中…</view>
+      <block wx:else>
+        <view wx:if="{{desks.length}}" class="desk-grid">
+          <view
+            wx:for="{{desks}}"
+            wx:key="id"
+            class="desk-chip {{deskCode === item.deskCode ? 'is-active' : ''}}"
+            data-desk="{{item.deskCode}}"
+            bindtap="selectDesk"
+          >{{item.deskCode}}</view>
+        </view>
+        <view wx:else class="desk-loading">门店暂未配置桌号，可手动输入</view>
+        <button class="light-button desk-manual" bindtap="manualDesk">手动输入桌号</button>
+      </block>
+    </view>
   </view>
 </view>

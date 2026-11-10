@@ -3,122 +3,210 @@
     <header class="dashboard-header glass-card">
       <div>
         <p class="welcome">欢迎回来，{{ adminName }}</p>
-        <h1>{{ dashboard.storeName || '食光小馆' }}经营中心</h1>
-        <p class="sub-copy">聚焦营业状态、菜单供给与订单履约，适合餐饮门店的轻量化经营后台。</p>
+        <h1>多租户点餐平台 · 超级管理员</h1>
+        <p class="sub-copy">管理全部租户、门店二维码、平台经营数据与管理员账号。</p>
       </div>
       <el-button plain @click="logout">退出登录</el-button>
     </header>
 
-    <section class="stats-grid">
-      <article class="stat-card glass-card">
-        <span>今日订单</span>
-        <strong>{{ dashboard.todayOrderCount || 0 }}</strong>
-      </article>
-      <article class="stat-card glass-card accent">
-        <span>今日营收</span>
-        <strong>¥ {{ Number(dashboard.todayRevenue || 0).toFixed(2) }}</strong>
-      </article>
-      <article class="stat-card glass-card">
-        <span>在售菜品</span>
-        <strong>{{ dashboard.availableMenuCount || 0 }}</strong>
-      </article>
-      <article class="stat-card glass-card">
-        <span>当前状态</span>
-        <strong>{{ businessForm.open ? '营业中' : '已打烊' }}</strong>
-      </article>
-    </section>
+    <el-tabs v-model="activeTab" class="console-tabs">
+      <el-tab-pane label="全局概览" name="overview">
+        <section class="stats-grid">
+          <article class="stat-card glass-card">
+            <span>租户总数</span>
+            <strong>{{ overview.totalTenants || 0 }}</strong>
+            <small>启用 {{ overview.enabledTenants || 0 }}</small>
+          </article>
+          <article class="stat-card glass-card accent">
+            <span>累计营收</span>
+            <strong>¥ {{ money(overview.totalRevenue) }}</strong>
+            <small>今日 ¥ {{ money(overview.todayRevenue) }}</small>
+          </article>
+          <article class="stat-card glass-card">
+            <span>累计订单</span>
+            <strong>{{ overview.totalOrders || 0 }}</strong>
+            <small>今日 {{ overview.todayOrders || 0 }}</small>
+          </article>
+          <article class="stat-card glass-card">
+            <span>顾客 / 菜品</span>
+            <strong>{{ overview.totalCustomers || 0 }} / {{ overview.totalMenuItems || 0 }}</strong>
+            <small>全平台统计</small>
+          </article>
+        </section>
 
-    <section class="content-grid">
-      <div class="glass-card status-panel">
-        <div class="section-title">
-          <h3>营业设置</h3>
-          <el-tag :type="businessForm.open ? 'success' : 'danger'">{{ businessForm.open ? '营业中' : '休息中' }}</el-tag>
-        </div>
-        <el-form :model="businessForm" label-position="top">
-          <el-form-item label="门店名称">
-            <el-input v-model="businessForm.storeName" />
-          </el-form-item>
-          <el-form-item label="营业公告">
-            <el-input v-model="businessForm.notice" type="textarea" :rows="3" />
-          </el-form-item>
-          <el-form-item label="营业开关">
-            <el-switch v-model="businessForm.open" size="large" inline-prompt active-text="营业" inactive-text="打烊" />
-          </el-form-item>
-          <el-button type="primary" @click="saveBusiness">保存营业设置</el-button>
-        </el-form>
-      </div>
+        <section class="glass-card panel">
+          <div class="section-title">
+            <h3>最近订单</h3>
+            <el-button text @click="loadOverview">刷新</el-button>
+          </div>
+          <el-table :data="overview.recentOrders || []" stripe>
+            <el-table-column prop="tenantCode" label="租户" width="100" />
+            <el-table-column prop="tenantName" label="门店" min-width="120" />
+            <el-table-column label="订单号" min-width="180">
+              <template #default="scope">{{ scope.row.order.orderNo }}</template>
+            </el-table-column>
+            <el-table-column label="顾客" width="110">
+              <template #default="scope">{{ scope.row.order.customerName }}</template>
+            </el-table-column>
+            <el-table-column label="金额" width="100">
+              <template #default="scope">¥ {{ money(scope.row.order.totalAmount) }}</template>
+            </el-table-column>
+            <el-table-column label="状态" width="110">
+              <template #default="scope">
+                <el-tag>{{ scope.row.order.status }}</el-tag>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </el-tab-pane>
 
-      <div class="glass-card menu-panel">
-        <div class="section-title">
-          <h3>菜单管理</h3>
-          <el-button type="primary" @click="openDialog(null)">新增菜品</el-button>
-        </div>
-        <el-table :data="menuItems" stripe>
-          <el-table-column prop="name" label="菜品" min-width="140" />
-          <el-table-column prop="categoryName" label="分类" width="110" />
-          <el-table-column prop="price" label="价格" width="90">
-            <template #default="scope">¥ {{ scope.row.price }}</template>
-          </el-table-column>
-          <el-table-column label="状态" width="90">
-            <template #default="scope">
-              <el-tag :type="scope.row.available ? 'success' : 'info'">{{ scope.row.available ? '在售' : '停售' }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" width="180">
-            <template #default="scope">
-              <el-button link type="primary" @click="openDialog(scope.row)">编辑</el-button>
-              <el-button link type="danger" @click="removeMenuItem(scope.row.id)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-    </section>
+      <el-tab-pane label="租户管理" name="tenants">
+        <section class="glass-card panel">
+          <div class="section-title">
+            <h3>租户列表</h3>
+            <div>
+              <el-button text @click="loadTenants">刷新</el-button>
+              <el-button type="primary" @click="openTenantDialog(null)">新建租户</el-button>
+            </div>
+          </div>
+          <el-table :data="tenants" stripe>
+            <el-table-column prop="code" label="编码" width="90" />
+            <el-table-column prop="name" label="租户" min-width="130" />
+            <el-table-column prop="storeName" label="门店名称" min-width="130" />
+            <el-table-column label="营业" width="90">
+              <template #default="scope">
+                <el-tag :type="scope.row.open ? 'success' : 'info'">{{ scope.row.open ? '营业中' : '打烊' }}</el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="启用" width="90">
+              <template #default="scope">
+                <el-switch
+                  :model-value="scope.row.enabled"
+                  @change="(value) => changeTenantEnabled(scope.row, value)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="数据" min-width="190">
+              <template #default="scope">
+                订单 {{ scope.row.orderCount }} · 菜品 {{ scope.row.menuItemCount }} · 管理员 {{ scope.row.adminCount }} · 顾客 {{ scope.row.customerCount }}
+              </template>
+            </el-table-column>
+            <el-table-column label="创建时间" width="170">
+              <template #default="scope">{{ formatTime(scope.row.createdTime) }}</template>
+            </el-table-column>
+            <el-table-column label="操作" width="180" fixed="right">
+              <template #default="scope">
+                <el-button link type="primary" @click="openTenantDialog(scope.row)">编辑</el-button>
+                <el-button link type="primary" @click="showQrcode(scope.row)">二维码</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </el-tab-pane>
 
-    <section class="glass-card order-panel">
-      <div class="section-title">
-        <h3>最新订单</h3>
-      </div>
-      <el-table :data="orders" stripe>
-        <el-table-column prop="orderNo" label="订单号" min-width="180" />
-        <el-table-column prop="customerName" label="顾客" width="100" />
-        <el-table-column prop="deskCode" label="桌号" width="90" />
-        <el-table-column prop="totalAmount" label="金额" width="90">
-          <template #default="scope">¥ {{ scope.row.totalAmount }}</template>
-        </el-table-column>
-        <el-table-column prop="status" label="状态" width="130" />
-        <el-table-column label="操作" width="180">
-          <template #default="scope">
-            <el-select :model-value="scope.row.status" @change="(value) => changeOrderStatus(scope.row.id, value)">
-              <el-option label="已支付" value="PAID" />
-              <el-option label="制作中" value="PREPARING" />
-              <el-option label="已完成" value="COMPLETED" />
-              <el-option label="已取消" value="CANCELLED" />
-            </el-select>
-          </template>
-        </el-table-column>
-      </el-table>
-    </section>
+      <el-tab-pane label="账号管理" name="accounts">
+        <section class="glass-card panel">
+          <div class="section-title">
+            <h3>管理员账号</h3>
+            <div>
+              <el-button text @click="loadAccounts">刷新</el-button>
+              <el-button type="primary" @click="openAccountDialog(null)">新增账号</el-button>
+            </div>
+          </div>
+          <el-table :data="accounts" stripe>
+            <el-table-column prop="username" label="账号" min-width="130" />
+            <el-table-column prop="displayName" label="显示名称" min-width="130" />
+            <el-table-column label="角色" width="120">
+              <template #default="scope">
+                <el-tag :type="scope.row.role === 'SUPER_ADMIN' ? 'danger' : 'success'">
+                  {{ scope.row.role === 'SUPER_ADMIN' ? '超级管理员' : '租户管理员' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column label="所属租户" min-width="150">
+              <template #default="scope">
+                {{ scope.row.tenantCode ? `${scope.row.tenantCode} ${scope.row.tenantName}` : '平台级' }}
+              </template>
+            </el-table-column>
+            <el-table-column label="启用" width="90">
+              <template #default="scope">
+                <el-switch
+                  :model-value="scope.row.enabled"
+                  @change="(value) => changeAccountEnabled(scope.row, value)"
+                />
+              </template>
+            </el-table-column>
+            <el-table-column label="创建时间" width="170">
+              <template #default="scope">{{ formatTime(scope.row.createdTime) }}</template>
+            </el-table-column>
+            <el-table-column label="操作" width="150" fixed="right">
+              <template #default="scope">
+                <el-button link type="primary" @click="openAccountDialog(scope.row)">编辑</el-button>
+                <el-button link type="danger" @click="removeAccount(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </section>
+      </el-tab-pane>
+    </el-tabs>
 
-    <el-dialog v-model="dialogVisible" title="菜品信息" width="560px">
-      <el-form :model="menuForm" label-position="top">
-        <el-form-item label="菜品名称"><el-input v-model="menuForm.name" /></el-form-item>
-        <el-form-item label="菜品分类">
-          <el-select v-model="menuForm.categoryId" style="width: 100%">
-            <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id" />
-          </el-select>
+    <el-dialog v-model="tenantDialogVisible" :title="tenantForm.id ? '编辑租户' : '新建租户'" width="560px">
+      <el-form :model="tenantForm" label-position="top">
+        <el-form-item v-if="!tenantForm.id" label="租户编码">
+          <el-input v-model="tenantForm.code" placeholder="例如 T005，系统内唯一" />
         </el-form-item>
-        <el-form-item label="价格"><el-input v-model="menuForm.price" /></el-form-item>
-        <el-form-item label="图片地址"><el-input v-model="menuForm.imageUrl" /></el-form-item>
-        <el-form-item label="菜品描述"><el-input v-model="menuForm.description" type="textarea" :rows="3" /></el-form-item>
-        <el-form-item label="排序"><el-input-number v-model="menuForm.sortOrder" :min="1" /></el-form-item>
-        <el-form-item>
-          <el-switch v-model="menuForm.recommended" inline-prompt active-text="推荐" inactive-text="普通" />
-          <el-switch v-model="menuForm.available" inline-prompt active-text="在售" inactive-text="停售" style="margin-left: 12px" />
+        <el-form-item label="租户名称"><el-input v-model="tenantForm.name" /></el-form-item>
+        <el-form-item label="门店名称"><el-input v-model="tenantForm.storeName" /></el-form-item>
+        <el-form-item label="店铺介绍"><el-input v-model="tenantForm.intro" type="textarea" :rows="2" /></el-form-item>
+        <el-form-item label="营业公告"><el-input v-model="tenantForm.notice" type="textarea" :rows="2" /></el-form-item>
+        <el-form-item v-if="!tenantForm.id" label="初始租户管理员（可选）">
+          <el-input v-model="tenantForm.adminUsername" placeholder="管理员账号" />
+        </el-form-item>
+        <el-form-item v-if="!tenantForm.id && tenantForm.adminUsername" label="管理员密码">
+          <el-input v-model="tenantForm.adminPassword" placeholder="至少 6 位" show-password />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitMenuForm">保存</el-button>
+        <el-button @click="tenantDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitTenant">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="qrcodeVisible" title="门店二维码" width="420px">
+      <div class="qrcode-box">
+        <img v-if="qrcode" :src="qrcode.url" alt="门店二维码" class="qrcode-image" />
+        <p>{{ qrcodeTenantCode }}</p>
+        <p class="qrcode-hint">扫码后进入该租户的点餐页面</p>
+      </div>
+    </el-dialog>
+
+    <el-dialog v-model="accountDialogVisible" :title="accountForm.id ? '编辑账号' : '新增账号'" width="520px">
+      <el-form :model="accountForm" label-position="top">
+        <el-form-item v-if="!accountForm.id" label="账号"><el-input v-model="accountForm.username" /></el-form-item>
+        <el-form-item label="显示名称"><el-input v-model="accountForm.displayName" /></el-form-item>
+        <el-form-item v-if="!accountForm.id" label="角色">
+          <el-select v-model="accountForm.role" style="width: 100%">
+            <el-option label="超级管理员" value="SUPER_ADMIN" />
+            <el-option label="租户管理员" value="TENANT_ADMIN" />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-if="!accountForm.id && accountForm.role === 'TENANT_ADMIN'" label="所属租户">
+          <el-select v-model="accountForm.tenantId" style="width: 100%" placeholder="请选择租户">
+            <el-option
+              v-for="tenant in tenants"
+              :key="tenant.id"
+              :label="`${tenant.code} ${tenant.name}`"
+              :value="tenant.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item :label="accountForm.id ? '重置密码（不修改请留空）' : '登录密码'">
+          <el-input v-model="accountForm.password" show-password placeholder="至少 6 位" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="accountDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAccount">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -129,113 +217,218 @@ import { onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
-  createMenuItem,
-  deleteMenuItem,
-  getBusinessStatus,
-  getDashboard,
-  getMenuItems,
-  getMenuOverview,
-  getOrders,
-  updateBusinessStatus,
-  updateMenuItem,
-  updateOrderStatus
+  adminLogout,
+  createAccount,
+  createTenant,
+  deleteAccount,
+  getOverview,
+  getTenantQrcode,
+  listAccounts,
+  listTenants,
+  updateAccount,
+  updateTenant
 } from '../api'
 
 const router = useRouter()
-const adminName = localStorage.getItem('admin_name') || '管理员'
-const dashboard = ref({})
-const orders = ref([])
-const menuItems = ref([])
-const categoryOptions = ref([])
-const dialogVisible = ref(false)
-const menuForm = reactive(resetMenuForm())
-const businessForm = reactive({ storeName: '', notice: '', open: true })
+const adminName = localStorage.getItem('admin_name') || '超级管理员'
+const activeTab = ref('overview')
+const overview = ref({})
+const tenants = ref([])
+const accounts = ref([])
 
-function resetMenuForm() {
+const tenantDialogVisible = ref(false)
+const qrcodeVisible = ref(false)
+const qrcode = ref(null)
+const qrcodeTenantCode = ref('')
+const accountDialogVisible = ref(false)
+
+const tenantForm = reactive(resetTenantForm())
+const accountForm = reactive(resetAccountForm())
+
+function resetTenantForm() {
   return {
     id: null,
-    categoryId: null,
+    code: '',
     name: '',
-    price: '0.00',
-    description: '',
-    imageUrl: '',
-    recommended: false,
-    available: true,
-    sortOrder: 1
+    storeName: '',
+    intro: '',
+    notice: '',
+    adminUsername: '',
+    adminPassword: ''
   }
 }
 
-const fillMenuForm = (row) => {
-  Object.assign(menuForm, row ? { ...row } : resetMenuForm())
-}
-
-const loadData = async () => {
-  const [dashboardData, statusData, menuData, menuOverview, orderData] = await Promise.all([
-    getDashboard(),
-    getBusinessStatus(),
-    getMenuItems(),
-    getMenuOverview(),
-    getOrders()
-  ])
-  dashboard.value = dashboardData
-  orders.value = orderData
-  menuItems.value = menuData
-  categoryOptions.value = menuOverview.categories
-  Object.assign(businessForm, statusData)
-}
-
-const saveBusiness = async () => {
-  await updateBusinessStatus(businessForm)
-  ElMessage.success('营业设置已保存')
-  await loadData()
-}
-
-const openDialog = (row) => {
-  fillMenuForm(row)
-  dialogVisible.value = true
-}
-
-const submitMenuForm = async () => {
-  const payload = {
-    ...menuForm,
-    price: Number(menuForm.price)
+function resetAccountForm() {
+  return {
+    id: null,
+    username: '',
+    displayName: '',
+    role: 'TENANT_ADMIN',
+    tenantId: null,
+    password: ''
   }
-  if (menuForm.id) {
-    await updateMenuItem(menuForm.id, payload)
-  } else {
-    await createMenuItem(payload)
-  }
-  dialogVisible.value = false
-  ElMessage.success('菜品已保存')
-  await loadData()
 }
 
-const removeMenuItem = async (id) => {
-  await ElMessageBox.confirm('删除后将不再展示该菜品，是否继续？', '删除确认', { type: 'warning' })
-  await deleteMenuItem(id)
-  ElMessage.success('删除成功')
-  await loadData()
+const money = (value) => Number(value || 0).toFixed(2)
+const formatTime = (value) => (value ? String(value).replace('T', ' ').slice(0, 19) : '')
+
+const loadOverview = async () => {
+  overview.value = await getOverview()
 }
 
-const changeOrderStatus = async (id, status) => {
-  await updateOrderStatus(id, { status })
-  ElMessage.success('订单状态已更新')
-  await loadData()
+const loadTenants = async () => {
+  tenants.value = await listTenants()
 }
 
-const logout = () => {
-  localStorage.removeItem('admin_token')
-  localStorage.removeItem('admin_name')
-  router.push('/login')
+const loadAccounts = async () => {
+  accounts.value = await listAccounts()
 }
 
-onMounted(async () => {
+const loadAll = async () => {
   try {
-    await loadData()
+    await Promise.all([loadOverview(), loadTenants(), loadAccounts()])
   } catch (error) {
     ElMessage.error(error.message || '数据加载失败')
   }
-})
+}
+
+const openTenantDialog = (row) => {
+  Object.assign(tenantForm, resetTenantForm(), row ? {
+    id: row.id,
+    code: row.code,
+    name: row.name,
+    storeName: row.storeName,
+    intro: row.intro,
+    notice: row.notice
+  } : {})
+  tenantDialogVisible.value = true
+}
+
+const submitTenant = async () => {
+  if (!tenantForm.name) {
+    ElMessage.warning('请填写租户名称')
+    return
+  }
+  try {
+    if (tenantForm.id) {
+      await updateTenant(tenantForm.id, {
+        name: tenantForm.name,
+        storeName: tenantForm.storeName,
+        intro: tenantForm.intro,
+        notice: tenantForm.notice
+      })
+      ElMessage.success('租户已更新')
+    } else {
+      await createTenant({
+        code: tenantForm.code,
+        name: tenantForm.name,
+        storeName: tenantForm.storeName,
+        intro: tenantForm.intro,
+        notice: tenantForm.notice,
+        adminUsername: tenantForm.adminUsername,
+        adminPassword: tenantForm.adminPassword
+      })
+      ElMessage.success('租户创建成功')
+    }
+    tenantDialogVisible.value = false
+    await Promise.all([loadTenants(), loadAccounts(), loadOverview()])
+  } catch (error) {
+    ElMessage.error(error.message || '保存失败')
+  }
+}
+
+const changeTenantEnabled = async (row, enabled) => {
+  try {
+    await updateTenant(row.id, { enabled })
+    ElMessage.success(enabled ? '租户已启用' : '租户已停用')
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败')
+  }
+  await Promise.all([loadTenants(), loadOverview()])
+}
+
+const showQrcode = async (row) => {
+  try {
+    qrcode.value = await getTenantQrcode(row.id)
+    qrcodeTenantCode.value = row.code
+    qrcodeVisible.value = true
+  } catch (error) {
+    ElMessage.error(error.message || '二维码生成失败')
+  }
+}
+
+const openAccountDialog = (row) => {
+  Object.assign(accountForm, resetAccountForm(), row ? {
+    id: row.id,
+    username: row.username,
+    displayName: row.displayName,
+    role: row.role,
+    tenantId: row.tenantId,
+    password: ''
+  } : {})
+  accountDialogVisible.value = true
+}
+
+const submitAccount = async () => {
+  try {
+    if (accountForm.id) {
+      const payload = { displayName: accountForm.displayName }
+      if (accountForm.password) {
+        payload.password = accountForm.password
+      }
+      await updateAccount(accountForm.id, payload)
+      ElMessage.success('账号已更新')
+    } else {
+      await createAccount({
+        username: accountForm.username,
+        displayName: accountForm.displayName,
+        role: accountForm.role,
+        tenantId: accountForm.tenantId,
+        password: accountForm.password
+      })
+      ElMessage.success('账号创建成功')
+    }
+    accountDialogVisible.value = false
+    await Promise.all([loadAccounts(), loadTenants()])
+  } catch (error) {
+    ElMessage.error(error.message || '保存失败')
+  }
+}
+
+const changeAccountEnabled = async (row, enabled) => {
+  try {
+    await updateAccount(row.id, { enabled })
+    ElMessage.success(enabled ? '账号已启用' : '账号已停用')
+  } catch (error) {
+    ElMessage.error(error.message || '操作失败')
+  }
+  await loadAccounts()
+}
+
+const removeAccount = async (row) => {
+  await ElMessageBox.confirm(`确定删除账号 ${row.username} 吗？`, '删除确认', { type: 'warning' })
+  try {
+    await deleteAccount(row.id)
+    ElMessage.success('账号已删除')
+    await Promise.all([loadAccounts(), loadTenants()])
+  } catch (error) {
+    ElMessage.error(error.message || '删除失败')
+  }
+}
+
+const logout = async () => {
+  try {
+    await adminLogout()
+  } catch (error) {
+    // 令牌可能已过期，继续清理本地登录态
+  }
+  localStorage.removeItem('admin_token')
+  localStorage.removeItem('admin_name')
+  localStorage.removeItem('admin_role')
+  router.push('/login')
+}
+
+onMounted(loadAll)
 </script>
 
 <style scoped>
@@ -258,13 +451,17 @@ onMounted(async () => {
 
 .dashboard-header h1 {
   margin: 0;
-  font-size: 38px;
+  font-size: 36px;
 }
 
 .sub-copy {
   color: #755948;
   max-width: 640px;
   line-height: 1.8;
+}
+
+.console-tabs {
+  margin-bottom: 24px;
 }
 
 .stats-grid {
@@ -288,32 +485,55 @@ onMounted(async () => {
   font-size: 32px;
 }
 
+.stat-card small {
+  display: block;
+  margin-top: 8px;
+  color: #816552;
+}
+
 .accent {
   background: linear-gradient(135deg, rgba(182, 84, 43, 0.95), rgba(103, 40, 16, 0.92));
   color: #fff6ee;
 }
 
-.accent span {
+.accent span,
+.accent small {
   color: rgba(255, 246, 238, 0.8);
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: 360px 1fr;
-  gap: 24px;
+.panel {
+  padding: 24px;
   margin-bottom: 24px;
 }
 
-.status-panel,
-.menu-panel,
-.order-panel {
-  padding: 24px;
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.section-title h3 {
+  margin: 0;
+}
+
+.qrcode-box {
+  text-align: center;
+}
+
+.qrcode-image {
+  width: 220px;
+  height: 220px;
+}
+
+.qrcode-hint {
+  color: #816552;
+  font-size: 13px;
 }
 
 @media (max-width: 1100px) {
-  .stats-grid,
-  .content-grid {
-    grid-template-columns: 1fr;
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

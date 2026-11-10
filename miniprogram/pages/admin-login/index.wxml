@@ -1,8 +1,24 @@
-<view class="page">
-  <view class="card login-card">
-    <view class="title">老板登录</view>
-    <input class="input" value="{{username}}" data-field="username" bindinput="handleInput" placeholder="用户名" />
-    <input class="input" value="{{password}}" data-field="password" bindinput="handleInput" placeholder="密码" password />
-    <button class="primary-button" bindtap="login">登录并进入管理</button>
+<view class="page auth-page admin-auth">
+  <view class="auth-head">
+    <view class="brand-mark small">管</view>
+    <view class="auth-title">管理员登录</view>
+    <view class="auth-sub">
+      <text class="tenant-chip">{{tenantName || tenantCode}}</text>
+      <text wx:if="{{tenantName}}" class="tenant-code">{{tenantCode}}</text>
+    </view>
   </view>
+
+  <view class="card auth-card">
+    <view class="field">
+      <text class="field-label">管理员账号</text>
+      <input class="input" value="{{username}}" data-field="username" bindinput="handleInput" placeholder="请输入管理员账号" placeholder-class="input-ph" />
+    </view>
+    <view class="field">
+      <text class="field-label">密码</text>
+      <input class="input" value="{{password}}" data-field="password" bindinput="handleInput" placeholder="请输入密码" password placeholder-class="input-ph" />
+    </view>
+    <button class="primary-button btn-block auth-submit" loading="{{loading}}" bindtap="login">登录并进入管理</button>
+  </view>
+
+  <view class="auth-note">租户管理员只能管理当前门店；超级管理员可在此进入任一门店。</view>
 </view>

@@ -2,19 +2,19 @@
   <div class="login-page">
     <div class="login-panel glass-card">
       <div class="hero-copy">
-        <p class="eyebrow">Shiguang Bistro</p>
-        <h1>门店经营，一屏掌控</h1>
-        <p>适配扫码点餐业务，老板可实时管理菜单、营业状态与订单流转。</p>
+        <p class="eyebrow">Order Food · Platform</p>
+        <h1>多租户点餐平台</h1>
+        <p>超级管理员可管理全部租户、生成门店二维码、查看全局经营数据与账号权限。</p>
       </div>
       <el-form :model="form" class="login-form" @submit.prevent="handleLogin">
         <el-form-item>
-          <el-input v-model="form.username" size="large" placeholder="请输入管理员账号" />
+          <el-input v-model="form.username" size="large" placeholder="超级管理员账号" />
         </el-form-item>
         <el-form-item>
           <el-input v-model="form.password" size="large" type="password" show-password placeholder="请输入密码" />
         </el-form-item>
-        <el-button type="primary" size="large" class="submit-button" @click="handleLogin">进入管理后台</el-button>
-        <p class="hint">初始化账号：admin / admin</p>
+        <el-button type="primary" size="large" class="submit-button" @click="handleLogin">登录平台后台</el-button>
+        <p class="hint">仅超级管理员可登录；租户管理员请使用小程序管理端。</p>
       </el-form>
     </div>
   </div>
@@ -27,13 +27,18 @@ import { ElMessage } from 'element-plus'
 import { adminLogin } from '../api'
 
 const router = useRouter()
-const form = reactive({ username: 'admin', password: 'admin' })
+const form = reactive({ username: '', password: '' })
 
 const handleLogin = async () => {
   try {
     const data = await adminLogin(form)
+    if (data.role !== 'SUPER_ADMIN') {
+      ElMessage.error('该账号不是超级管理员，无法登录 PC 端')
+      return
+    }
     localStorage.setItem('admin_token', data.token)
     localStorage.setItem('admin_name', data.displayName)
+    localStorage.setItem('admin_role', data.role)
     ElMessage.success('登录成功')
     router.push('/dashboard')
   } catch (error) {

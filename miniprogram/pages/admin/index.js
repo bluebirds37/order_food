@@ -1,9 +1,15 @@
 const { request } = require('../../utils/request')
+const { requireAdmin, tenantQuery } = require('../../utils/admin')
+const { withStatusText } = require('../../utils/status')
 
 Page({
   data: {
+    tenantCode: '',
+    tenantName: '',
+    adminName: '',
+    role: '',
     dashboard: {
-      storeName: '食光小馆',
+      storeName: '',
       open: false,
       notice: '',
       todayOrderCount: 0,
@@ -14,17 +20,32 @@ Page({
   },
 
   onShow() {
-    if (!wx.getStorageSync('adminToken')) {
-      wx.redirectTo({ url: '/pages/admin-login/index' })
+    const session = requireAdmin()
+    if (!session) {
       return
     }
-    this.loadDashboard()
+    const app = getApp()
+    this.setData({
+      tenantCode: session.tenantCode,
+      tenantName: app.globalData.tenantName || wx.getStorageSync('tenantName') || session.tenantCode,
+      adminName: wx.getStorageSync('adminName') || '',
+      role: session.role
+    })
+    this.loadDashboard(session.tenantCode)
   },
 
-  async loadDashboard() {
+  async loadDashboard(tenantCode) {
     try {
-      const dashboard = await request({ url: '/admin/dashboard', method: 'GET' })
-      this.setData({ dashboard })
+      const dashboard = await request({
+        url: `/admin/dashboard${tenantQuery(tenantCode)}`,
+        method: 'GET'
+      })
+      this.setData({
+        dashboard: {
+          ...dashboard,
+          latestOrders: withStatusText(dashboard.latestOrders)
+        }
+      })
     } catch (error) {
       wx.showToast({ title: error.message || '加载失败', icon: 'none' })
     }
@@ -36,7 +57,12 @@ Page({
   },
 
   logout() {
-    wx.removeStorageSync('adminToken')
+    wx.removeStorageSync('authToken')
+    wx.removeStorageSync('authRole')
+    wx.removeStorageSync('adminName')
+    const app = getApp()
+    app.globalData.token = ''
+    app.globalData.role = ''
     wx.redirectTo({ url: '/pages/admin-login/index' })
   }
 })

@@ -1,0 +1,25 @@
+<view class="page entry-page">
+  <view class="brand-panel entry-hero">
+    <view class="brand-mark">点</view>
+    <view class="hero-eyebrow">SCAN · ORDER · ENJOY</view>
+    <view class="hero-title">扫码进入门店</view>
+    <view class="hero-desc">每张实体二维码对应一家门店，扫码后即可查看菜单、下单点餐。</view>
+    <view wx:if="{{tenantName}}" class="last-store">
+      <text class="last-store-label">上次进入</text>
+      <text class="last-store-name">{{tenantName}}</text>
+    </view>
+  </view>
+
+  <view class="card scan-card">
+    <button class="primary-button btn-block" loading="{{loading}}" bindtap="scanCode">扫描门店二维码</button>
+    <view class="divider"><text>或手动输入门店编码</text></view>
+    <input class="input" value="{{codeInput}}" bindinput="handleInput" placeholder="例如 T001" placeholder-class="input-ph" />
+    <button class="light-button btn-block" bindtap="enterManual">进入门店</button>
+    <button class="admin-link" bindtap="goAdminLogin">门店管理员 / 超级管理员登录</button>
+  </view>
+
+  <view class="card tip-card">
+    <view class="tip-title">没有门店标识？</view>
+    <view class="tip-desc">请扫描餐桌上或门店前台张贴的二维码。二维码内容形如 orderfood://tenant/T001。</view>
+  </view>
+</view>

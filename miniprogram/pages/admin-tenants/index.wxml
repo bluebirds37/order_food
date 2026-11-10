@@ -1,0 +1,35 @@
+<view class="page tenants-page">
+  <view class="card page-head">
+    <view class="page-title">选择要管理的门店</view>
+    <view class="page-sub">切换后可管理该门店的菜单、桌号、订单与排餐</view>
+  </view>
+
+  <view wx:if="{{loading}}" class="card empty-state">门店列表加载中…</view>
+  <view wx:elif="{{tenants.length === 0}}" class="card empty-state">还没有门店，请先在超管后台创建</view>
+
+  <view wx:for="{{tenants}}" wx:key="id" wx:for-item="tenant" class="card tenant-card {{tenant.enabled ? '' : 'is-disabled'}}">
+    <view class="tenant-top">
+      <view class="tenant-copy">
+        <view class="tenant-name">{{tenant.storeName || tenant.name}}</view>
+        <view class="tenant-code">{{tenant.code}}</view>
+      </view>
+      <view class="tenant-tags">
+        <view wx:if="{{!tenant.enabled}}" class="tenant-tag is-off">已停用</view>
+        <view class="tenant-tag {{tenant.open ? 'is-open' : 'is-closed'}}">{{tenant.open ? '营业中' : '休息中'}}</view>
+      </view>
+    </view>
+    <view class="tenant-stats">
+      <view class="tenant-stat"><text class="stat-num">{{tenant.orderCount}}</text><text class="stat-label">订单</text></view>
+      <view class="tenant-stat"><text class="stat-num">{{tenant.menuItemCount}}</text><text class="stat-label">菜品</text></view>
+      <view class="tenant-stat"><text class="stat-num">{{tenant.adminCount}}</text><text class="stat-label">管理员</text></view>
+      <view class="tenant-stat"><text class="stat-num">{{tenant.customerCount}}</text><text class="stat-label">顾客</text></view>
+    </view>
+    <button
+      class="primary-button tenant-enter"
+      data-code="{{tenant.code}}"
+      data-name="{{tenant.storeName || tenant.name}}"
+      disabled="{{!tenant.enabled}}"
+      bindtap="switchTenant"
+    >{{tenant.enabled ? '进入管理' : '门店已停用'}}</button>
+  </view>
+</view>
